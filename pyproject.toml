@@ -1,0 +1,21 @@
+[project]
+name = "kiracro-improved"
+version = "0.1.0"
+description = "Best da hood macro."
+authors = [
+]
+readme = "README.md"
+requires-python = ">=3.13"
+license = "MIT"
+dependencies = [
+]
+
+[tool.poetry]
+packages = [{include = "kiracro_improved", from = "src"}]
+
+[tool.poetry.scripts]
+poetry-runner = "kiracro_improved.main:main"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
