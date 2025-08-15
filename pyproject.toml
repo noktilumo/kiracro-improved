@@ -8,6 +8,8 @@ readme = "README.md"
 requires-python = ">=3.13"
 license = "MIT"
 dependencies = [
+    "pynput (>=1.8.1,<2.0.0)",
+    "click (>=8.2.1,<9.0.0)"
 ]
 
 [tool.poetry]
