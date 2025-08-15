@@ -13,6 +13,7 @@ jobs:
         uses: abatilo/actions-poetry@v4
       - name: Setup a local virtual environment (if no poetry.toml file)
         run: |
+          poetry env use python3.13
           poetry config virtualenvs.create true --local
           poetry config virtualenvs.in-project true --local
       - uses: actions/cache@v3
