@@ -6,39 +6,78 @@ on:
       - 'v*.*.*'
 
 jobs:
-  ci:
+  linux-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-           fetch-depth: 0
+          fetch-depth: 0
       - name: Install Python
         uses: actions/setup-python@v4
-        with: 
+        with:
           python-version: '3.13'
       - name: Install poetry
         uses: abatilo/actions-poetry@v4
-      - name: Setup a local virtual environment (if no poetry.toml file)
+      - name: Setup virtualenv
         run: |
           poetry config virtualenvs.create true --local
           poetry config virtualenvs.in-project true --local
       - uses: actions/cache@v3
-        name: Define a cache for the virtual environment based on the dependencies lock file
         with:
           path: ./.venv
           key: venv-${{ hashFiles('poetry.lock') }}
-      - name: Install the project dependencies
+      - name: Install dependencies
         run: poetry install
+      - name: Build Linux Executable
+        run: poetry run pyinstaller -F -y -n kiracro-improved-x86_64 src/kiracro_improved/main.py
       - name: Build and Upload
         run: poetry build
-      - name: Upload a Build Artifact
+      - name: Upload Linux Artifact
         uses: actions/upload-artifact@v4.6.2
         with:
-          name: build-files
+          name: linux-build
           path: ./dist/
-      - name: Release
+
+  windows-build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Install Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13'
+    - name: Install Poetry
+      uses: abatilo/actions-poetry@v4
+    - name: Setup virtualenv
+      run: |
+        poetry config virtualenvs.create true --local
+        poetry config virtualenvs.in-project true --local
+    - uses: actions/cache@v3
+      with:
+        path: .\.venv
+        key: win-venv-${{ hashFiles('poetry.lock') }}
+    - name: Install dependencies
+      run: poetry install
+    - name: Build Windows Executable
+      run: poetry run pyinstaller -F -y -n kiracro-improved-windows-x64.exe src/kiracro_improved/main.py
+    - name: Upload Windows Artifact
+      uses: actions/upload-artifact@v4.6.2
+      with:
+        name: windows-build
+        path: ./dist/
+
+
+  release:
+    needs: [linux-build, windows-build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./release-assets
+      - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ./dist/*
-
-        
+          files: ./release-assets/**/*
